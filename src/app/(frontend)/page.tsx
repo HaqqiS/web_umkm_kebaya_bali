@@ -37,22 +37,22 @@ const formatRupiah = (number: number) => {
 }
 
 export default async function Page() {
-  // const payload = await getPayload({ config })
-  // const products = await payload.find({
-  //   collection: 'products',
-  //   depth: 2, // Ambil URL gambar
-  //   limit: 8, // Tampilkan 8 produk terbaru
-  //   sort: '-createdAt',
-  // })
+  const payload = await getPayload({ config })
+  const products = await payload.find({
+    collection: 'products',
+    depth: 2, // Ambil URL gambar
+    limit: 8, // Tampilkan 8 produk terbaru
+    sort: '-createdAt',
+  })
   // Instead of using Payload SDK (which transforms URLs), fetch via API
   // This gives us raw data without URL transformation
-  const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000'
+  // const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000'
 
-  const response = await fetch(`${baseUrl}/api/products?depth=2&limit=8&sort=-createdAt`, {
-    next: { revalidate: 60 }, // Cache for 60 seconds
-  })
+  // const response = await fetch(`${baseUrl}/api/products?depth=2&limit=8&sort=-createdAt`, {
+  //   next: { revalidate: 60 }, // Cache for 60 seconds
+  // })
 
-  const products = await response.json()
+  // const products = await response.json()
 
   return (
     <div className="min-h-screen bg-background font-sans text-foreground">
@@ -197,31 +197,28 @@ export default async function Page() {
         <section className="container mx-auto px-4 lg:px-6 py-12 lg:py-16">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
             {products.docs.map((product: Product) => {
-              // Logic Gambar Aman
+              // Extract image from the nested structure
               const mainImage = product.images?.[0]?.image
 
-              // IMPORTANT: Use cloudinary_url field which PayloadCMS doesn't transform
-              // The 'url' field gets transformed to /api/media/file, but cloudinary_url doesn't
+              // IMPORTANT: Use cloudinary_url field for direct Cloudinary access
+              // Extract URL from the API response structure
               let imageUrl = '/placeholder.jpg'
 
               if (typeof mainImage === 'object' && mainImage !== null) {
-                // Try cloudinary_url first (this won't be transformed)
-                if ('cloudinary_url' in mainImage && mainImage.cloudinary_url) {
-                  imageUrl = mainImage.cloudinary_url as string
-                } else if (
-                  'cloudinary_id' in mainImage &&
-                  mainImage.cloudinary_id &&
-                  mainImage.url
-                ) {
-                  // Fallback to url field (might be transformed)
-                  imageUrl = mainImage.url
-                } else if (mainImage.url) {
-                  // Last resort
-                  imageUrl = mainImage.url
+                // Access cloudinary_url directly - TypeScript might not know about this field
+                // but it exists in the API response
+                const imageObj = mainImage as any
+
+                if (imageObj.cloudinary_url) {
+                  imageUrl = imageObj.cloudinary_url
+                } else if (imageObj.sizes?.card?.url) {
+                  // Fallback to card size if available
+                  imageUrl = imageObj.sizes.card.url
+                } else if (imageObj.url) {
+                  // Last resort - use the main URL
+                  imageUrl = imageObj.url
                 }
               }
-
-              console.log('Product:', product.name, 'Image URL:', imageUrl)
 
               return (
                 <Card
@@ -250,7 +247,9 @@ export default async function Page() {
                           {/* Badge Kategori - Overlaid on image */}
                           <div className="absolute top-3 left-3 z-10">
                             <Badge className="bg-card/90 text-foreground hover:bg-primary hover:text-primary-foreground cursor-pointer shadow-lg backdrop-blur-md transition-all text-xs px-2.5 py-0.5 font-medium border-0">
-                              {product.category?.title ?? 'Kebaya'}
+                              {typeof product.category === 'object' && product.category?.title
+                                ? product.category.title
+                                : 'Kebaya'}
                             </Badge>
                           </div>
                         </div>
