@@ -6,9 +6,9 @@ import Link from 'next/link'
 
 // Import Shadcn UI
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { AspectRatio } from '@/components/ui/aspect-ratio'
+// import { AspectRatio } from '@/components/ui/aspect-ratio' // Removed
+// import { Card, ... } // Removed
 import { Separator } from '@/components/ui/separator'
 
 // Import Hugeicons
@@ -44,6 +44,14 @@ export default async function Page() {
     limit: 8, // Tampilkan 8 produk terbaru
     sort: '-createdAt',
   })
+
+  // Fetch Categories
+  const categories = await payload.find({
+    collection: 'categories',
+    limit: 4,
+    sort: 'title',
+  })
+
   // Instead of using Payload SDK (which transforms URLs), fetch via API
   // This gives us raw data without URL transformation
   // const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000'
@@ -70,7 +78,7 @@ export default async function Page() {
 
           {/* Search Bar (Hidden di Mobile) */}
           <div className="hidden md:flex items-center gap-2 bg-muted/50 px-4 py-2.5 rounded-xl w-full max-w-md border border-border/50 focus-within:border-primary/50 transition-colors">
-            <Icon icon={Search01Icon} className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+            <Icon icon={Search01Icon} className="h-4 w-4 text-muted-foreground shrink-0" />
             <input
               type="text"
               placeholder="Cari kebaya brokat, selendang..."
@@ -78,15 +86,17 @@ export default async function Page() {
             />
           </div>
 
-          <Button size="sm" className="font-semibold shadow-md hover:shadow-lg transition-all">
-            Login
-          </Button>
+          <Link href="/admin">
+            <Button size="sm" className="font-semibold shadow-md hover:shadow-lg transition-all">
+              Login
+            </Button>
+          </Link>
         </div>
       </nav>
 
       <main>
         {/* --- HERO SECTION --- */}
-        <section className="relative overflow-hidden bg-gradient-to-br from-primary/5 via-accent/5 to-secondary/10 py-12 md:py-20 lg:py-28">
+        <section className="relative overflow-hidden bg-linear-to-br from-primary/5 via-accent/5 to-secondary/10 py-12 md:py-20 lg:py-28">
           {/* Decorative elements */}
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
             <div className="absolute -top-24 -right-24 w-96 h-96 bg-primary/10 rounded-full blur-3xl"></div>
@@ -99,12 +109,12 @@ export default async function Page() {
               className="mb-4 lg:mb-6 border-primary/30 text-primary bg-primary/10 px-4 lg:px-6 py-1.5 lg:py-2 text-xs lg:text-sm uppercase tracking-wide font-semibold inline-flex items-center gap-2 hover:bg-primary/20 transition-colors"
             >
               <Icon icon={SparklesIcon} className="h-3 w-3 lg:h-4 lg:w-4" />
-              Koleksi Terbaru 2024
+              Koleksi Terbaru 2025
             </Badge>
 
             <h1 className="text-3xl md:text-5xl lg:text-7xl font-extrabold tracking-tight text-foreground mb-4 lg:mb-6 leading-tight">
               Anggun & Bercahaya dengan <br className="hidden sm:block" />
-              <span className="text-primary bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+              <span className=" bg-linear-to-r from-primary to-accent bg-clip-text text-transparent">
                 Kebaya Bali Asli
               </span>
             </h1>
@@ -136,7 +146,6 @@ export default async function Page() {
           </div>
         </section>
 
-        {/* --- FEATURES SECTION --- */}
         <section className="bg-card py-12 lg:py-16 border-y border-border">
           <div className="container mx-auto px-4 lg:px-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
@@ -176,10 +185,48 @@ export default async function Page() {
           </div>
         </section>
 
+        {/* --- CATEGORIES SECTION --- */}
+        <section className="py-12 lg:py-16 container mx-auto px-4 lg:px-6">
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="text-2xl lg:text-3xl font-bold tracking-tight">Kategori Pilihan</h2>
+            <Button
+              variant="ghost"
+              className="text-primary hover:text-primary/80 font-semibold text-sm"
+            >
+              Lihat Semua
+              <Icon icon={ArrowRight01Icon} className="ml-2 h-4 w-4" />
+            </Button>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 lg:gap-6">
+            {categories.docs.map((category: any) => (
+              <Link
+                key={category.id}
+                href={`/categories/${category.slug}`}
+                className="group relative overflow-hidden rounded-2xl aspect-12/4 border border-border bg-muted/30 hover:shadow-lg transition-all duration-300"
+              >
+                <div className="absolute inset-0 flex items-center justify-center p-6 text-center z-10 ">
+                  <div>
+                    <h3 className="text-lg lg:text-xl font-bold text-foreground group-hover:text-primary transition-colors">
+                      {category.title}
+                    </h3>
+                    <p className="text-xs text-muted-foreground mt-1 opacity-0 group-hover:opacity-100 transition-opacity translate-y-2 group-hover:translate-y-0 duration-300">
+                      Lihat Koleksi &rarr;
+                    </p>
+                  </div>
+                </div>
+                {/* Decorative gradients */}
+                <div className="absolute inset-0 bg-primary/5 group-hover:bg-primary/10 transition-colors"></div>
+                <div className="absolute -bottom-8 -right-8 w-24 h-24 bg-primary/20 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-500"></div>
+              </Link>
+            ))}
+          </div>
+        </section>
+
         <Separator />
 
         {/* --- FILTER BAR --- */}
-        <section className="bg-card py-0 lg:py-8 border-b border-border sticky top-16 lg:top-20 z-40 backdrop-blur-sm bg-card/95">
+        <section className="py-6 lg:py-4 border-b border-border sticky top-16 lg:top-20 z-40 backdrop-blur-sm bg-card/95">
           <div className="container mx-auto px-4 lg:px-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
               <h2 className="text-xl lg:text-2xl font-bold mb-1">Produk Pilihan</h2>
@@ -196,7 +243,7 @@ export default async function Page() {
         {/* --- PRODUCT GRID --- */}
         <section className="container mx-auto px-4 lg:px-6 py-12 lg:py-16">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
-            {products.docs.map((product: Product) => {
+            {products.docs.map((product: any) => {
               // Extract image from the nested structure
               const mainImage = product.images?.[0]?.image
 
@@ -220,74 +267,94 @@ export default async function Page() {
                 }
               }
 
+              const isPreOrder = product.stockStatus === 'po'
+
               return (
-                <Card
-                  key={product.id}
-                  className="group border-border overflow-hidden hover:border-primary/40 hover:shadow-2xl transition-all duration-500 relative bg-card rounded-2xl"
-                >
-                  {/* Link Utama Produk - Wraps entire card for better UX */}
-                  <Link href={`/products/${product.slug}`} className="block">
-                    {/* Image Section - Larger and more prominent */}
-
-                    <CardHeader className="p-0 relative">
-                      <AspectRatio ratio={4 / 5}>
-                        <div className="relative h-full w-full bg-muted overflow-hidden">
-                          {imageUrl && (
-                            <Image
-                              src={imageUrl}
-                              alt={product.name}
-                              fill
-                              className="object-cover transition-all duration-700 group-hover:scale-105 group-hover:brightness-95"
-                              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
-                            />
-                          )}
-                          {/* Subtle overlay for better text contrast */}
-                          <div className="absolute inset-0 bg-linear-to-t from-foreground/20 via-transparent to-transparent"></div>
-
-                          {/* Badge Kategori - Overlaid on image */}
-                          <div className="absolute top-3 left-3 z-10">
-                            <Badge className="bg-card/90 text-foreground hover:bg-primary hover:text-primary-foreground cursor-pointer shadow-lg backdrop-blur-md transition-all text-xs px-2.5 py-0.5 font-medium border-0">
-                              {typeof product.category === 'object' && product.category?.title
-                                ? product.category.title
-                                : 'Kebaya'}
-                            </Badge>
-                          </div>
-                        </div>
-                      </AspectRatio>
-                    </CardHeader>
-
-                    {/* Content Section - Compact and minimal */}
-                    <CardContent className="p-3.5 lg:p-4 space-y-2">
-                      <h3 className="font-semibold text-sm lg:text-base text-foreground line-clamp-2 group-hover:text-primary transition-colors leading-snug">
-                        {product.name}
-                      </h3>
-                      <p className="text-lg lg:text-xl font-bold text-primary">
-                        {formatRupiah(product.price)}
-                      </p>
-                    </CardContent>
-                  </Link>
-
-                  {/* Footer dengan Tombol WA - Separated from link */}
-                  <CardFooter className="p-3.5 lg:p-4 pt-0">
-                    <Button
-                      asChild
-                      size="sm"
-                      className="w-full font-semibold bg-green-600 hover:bg-green-700 text-white shadow-md hover:shadow-lg transition-all group/btn text-xs lg:text-sm"
-                    >
-                      <Link
-                        href={`https://wa.me/6281234567890?text=Halo, saya mau pesan ${product.name}`}
-                        target="_blank"
-                        // onClick={(e) => e.stopPropagation()}
-                      >
-                        <Icon
-                          icon={WhatsappIcon}
-                          className="mr-1.5 h-4 w-4 group-hover/btn:scale-110 transition-transform"
+                <div key={product.id} className="group relative">
+                  {/* Image Container - Full Bleed & Interactive */}
+                  <div className="relative aspect-3/4 w-full overflow-hidden rounded-xl bg-muted">
+                    <Link href={`/products/${product.slug}`} className="block h-full w-full">
+                      {imageUrl && (
+                        <Image
+                          src={imageUrl}
+                          alt={product.name}
+                          fill
+                          className="object-cover transition-transform duration-700 ease-out group-hover:scale-110"
+                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
                         />
-                        Pesan via WA
+                      )}
+
+                      {/* Dark gradient overlay on hover for better text readability if needed */}
+                      <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                    </Link>
+
+                    {/* Floating Badges - Top Left */}
+                    <div className="absolute top-3 left-3 flex flex-col gap-2 z-10 pointer-events-none">
+                      {typeof product.category === 'object' && product.category?.slug ? (
+                        <Link
+                          href={`/categories/${product.category.slug}`}
+                          className="pointer-events-auto"
+                        >
+                          <Badge className="bg-white/80 backdrop-blur-md text-foreground hover:bg-white/90 hover:text-primary border-0 shadow-xs uppercase tracking-wider text-[10px] font-bold px-2 py-1 transition-colors">
+                            {product.category.title}
+                          </Badge>
+                        </Link>
+                      ) : (
+                        <Badge className="bg-white/80 backdrop-blur-md text-foreground border-0 shadow-xs uppercase tracking-wider text-[10px] font-bold px-2 py-1">
+                          {typeof product.category === 'object' && product.category?.title
+                            ? product.category.title
+                            : 'Kebaya'}
+                        </Badge>
+                      )}
+                      {isPreOrder && (
+                        <Badge className="bg-black/80 backdrop-blur-md text-white border-0 shadow-xs uppercase tracking-wider text-[10px] font-bold px-2 py-1 w-fit">
+                          Pre-Order
+                        </Badge>
+                      )}
+                    </div>
+
+                    {/* Floating Action Button - Bottom Center (Apps on Hover) */}
+                    <div className="absolute bottom-4 left-4 right-4 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 ease-out z-20">
+                      <Button
+                        asChild
+                        size="sm"
+                        className="w-full bg-white/95 hover:bg-white text-black font-semibold shadow-lg backdrop-blur-sm border-0 rounded-lg h-10 tracking-wide"
+                      >
+                        <Link
+                          href={`https://wa.me/6281234567890?text=Halo, saya tertarik dengan ${product.name}, apakah masih tersedia?`}
+                          target="_blank"
+                        >
+                          <Icon icon={WhatsappIcon} className="mr-2 h-4 w-4 text-green-600" />
+                          Order via WhatsApp
+                        </Link>
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* Product Details - Minimal & Elegant */}
+                  <div className="mt-4 space-y-1.5 px-1">
+                    <div className="flex justify-between items-start gap-4">
+                      <Link
+                        href={`/products/${product.slug}`}
+                        className="block group-hover:text-primary transition-colors duration-300"
+                      >
+                        <h3 className="font-medium text-foreground text-base leading-snug tracking-tight">
+                          {product.name}
+                        </h3>
                       </Link>
-                    </Button>
-                  </CardFooter>
-                </Card>
+                      <span className="font-bold text-primary shrink-0 text-base">
+                        {formatRupiah(product.price)}
+                      </span>
+                    </div>
+
+                    {/* Optional: Material or Subtitle */}
+                    {product.material && (
+                      <p className="text-xs text-muted-foreground capitalize font-medium tracking-wide">
+                        {product.material.replace(/_/g, ' ')}
+                      </p>
+                    )}
+                  </div>
+                </div>
               )
             })}
           </div>
