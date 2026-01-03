@@ -405,7 +405,7 @@ export default async function Page() {
 
             {/* Copyright */}
             <p className="text-sm text-muted-foreground">
-              &copy; 2024 Griya Kebaya Bali. Dibuat dengan bangga untuk UMKM Indonesia.
+              &copy; 2026 Griya Kebaya Bali. Dibuat dengan bangga untuk UMKM Indonesia.
             </p>
           </div>
         </div>
