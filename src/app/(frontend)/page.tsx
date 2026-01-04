@@ -25,6 +25,7 @@ import {
 } from '@hugeicons/core-free-icons'
 import { Icon } from '@/components/ui/icon'
 import { Product } from '@/payload-types'
+import { SearchBar } from '@/components/ui/search-bar'
 
 // Helper Format Rupiah
 const formatRupiah = (number: number) => {
@@ -77,14 +78,7 @@ export default async function Page() {
           </div>
 
           {/* Search Bar (Hidden di Mobile) */}
-          <div className="hidden md:flex items-center gap-2 bg-muted/50 px-4 py-2.5 rounded-xl w-full max-w-md border border-border/50 focus-within:border-primary/50 transition-colors">
-            <Icon icon={Search01Icon} className="h-4 w-4 text-muted-foreground shrink-0" />
-            <input
-              type="text"
-              placeholder="Cari kebaya brokat, selendang..."
-              className="bg-transparent border-none outline-none text-sm w-full placeholder:text-muted-foreground"
-            />
-          </div>
+          <SearchBar />
 
           <Link href="/admin">
             <Button size="sm" className="font-semibold shadow-md hover:shadow-lg transition-all">
@@ -128,19 +122,23 @@ export default async function Page() {
               <Button
                 size="lg"
                 className="rounded-xl px-6 lg:px-8 shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 hover:scale-105 transition-all group"
+                asChild
               >
-                Lihat Katalog
-                <Icon
-                  icon={ArrowRight01Icon}
-                  className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform"
-                />
+                <Link href="/products">
+                  Lihat Katalog
+                  <Icon
+                    icon={ArrowRight01Icon}
+                    className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform"
+                  />
+                </Link>
               </Button>
               <Button
                 size="lg"
                 variant="outline"
                 className="rounded-xl px-6 lg:px-8 border-2 hover:bg-accent/5"
+                asChild
               >
-                Cara Pemesanan
+                <Link href="/how-to-order">Cara Pemesanan</Link>
               </Button>
             </div>
           </div>
@@ -192,9 +190,12 @@ export default async function Page() {
             <Button
               variant="ghost"
               className="text-primary hover:text-primary/80 font-semibold text-sm"
+              asChild
             >
-              Lihat Semua
-              <Icon icon={ArrowRight01Icon} className="ml-2 h-4 w-4" />
+              <Link href="/categories">
+                Lihat Semua
+                <Icon icon={ArrowRight01Icon} className="ml-2 h-4 w-4" />
+              </Link>
             </Button>
           </div>
 
@@ -234,8 +235,10 @@ export default async function Page() {
                 {products.docs.length} produk tersedia
               </p>
             </div>
-            <Button variant="outline" size="sm" className="w-full sm:w-auto border-border">
-              <Icon icon={FilterHorizontalIcon} className="mr-2 h-4 w-4" /> Filter & Urutkan
+            <Button variant="outline" size="sm" className="w-full sm:w-auto border-border" asChild>
+              <Link href="/products">
+                <Icon icon={FilterHorizontalIcon} className="mr-2 h-4 w-4" /> Filter & Urutkan
+              </Link>
             </Button>
           </div>
         </section>
@@ -366,9 +369,12 @@ export default async function Page() {
                 variant="outline"
                 size="lg"
                 className="rounded-xl px-8 border-2 hover:bg-accent/5"
+                asChild
               >
-                Lihat Lebih Banyak
-                <Icon icon={ArrowRight01Icon} className="ml-2 h-4 w-4" />
+                <Link href="/products">
+                  Lihat Lebih Banyak
+                  <Icon icon={ArrowRight01Icon} className="ml-2 h-4 w-4" />
+                </Link>
               </Button>
             </div>
           )}
