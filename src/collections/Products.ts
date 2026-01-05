@@ -1,4 +1,5 @@
 import { CollectionConfig } from 'payload'
+import { revalidate } from '../hooks/revalidate'
 
 export const Products: CollectionConfig = {
   slug: 'products',
@@ -140,4 +141,8 @@ export const Products: CollectionConfig = {
       },
     },
   ],
+  hooks: {
+    afterChange: [revalidate],
+    afterDelete: [revalidate],
+  },
 }

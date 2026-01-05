@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload'
+import { revalidate } from '../hooks/revalidate'
 import { cloudinary } from '../payload.config'
 import fs from 'fs'
 import path from 'path'
@@ -154,7 +155,9 @@ export const Media: CollectionConfig = {
           console.error('Cloudinary delete error:', error)
         }
       },
+      revalidate,
     ],
+    afterChange: [revalidate],
   },
   access: {
     read: () => true,
