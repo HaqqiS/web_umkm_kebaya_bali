@@ -15,6 +15,9 @@ import {
 import { Icon } from '@/components/ui/icon'
 import { SearchBar } from '@/components/ui/search-bar'
 
+import { FilterSortSheet } from '@/components/filter-sort-sheet'
+
+// ... existing helper ...
 // Helper Format Rupiah
 const formatRupiah = (number: number) => {
   return new Intl.NumberFormat('id-ID', {
@@ -33,24 +36,77 @@ export default async function ProductsPage({ searchParams }: Props) {
   const searchParamsValue = await searchParams
   const query = searchParamsValue?.search as string | undefined
   const sort = (searchParamsValue?.sort as string) || '-createdAt'
+  const categorySlug = searchParamsValue?.category as string | undefined
+  const minPrice = searchParamsValue?.minPrice ? Number(searchParamsValue.minPrice) : undefined
+  const maxPrice = searchParamsValue?.maxPrice ? Number(searchParamsValue.maxPrice) : undefined
 
   const payload = await getPayload({ config })
 
+  // Fetch Categories for Filter
+  const categoriesResult = await payload.find({
+    collection: 'categories',
+    pagination: false,
+    sort: 'title',
+  })
+
+  // Transform to simple array for component
+  const categories = categoriesResult.docs.map((cat) => ({
+    id: cat.id,
+    title: cat.title,
+    slug: cat.slug || '',
+  }))
+
   // Build where query
   const where: any = {}
+  const and: any[] = []
+
   if (query) {
-    where.or = [
-      {
-        name: {
-          like: query,
+    and.push({
+      or: [
+        {
+          name: {
+            like: query,
+          },
         },
-      },
-      {
-        description: {
-          like: query,
+        {
+          description: {
+            like: query,
+          },
         },
+      ],
+    })
+  }
+
+  if (categorySlug) {
+    // Find category ID by slug first (or assuming relation uses ID, typically Payload relations need ID)
+    // If slug is indexed or we can filter relation by slug directly:
+    // 'category.slug': { equals: categorySlug }
+    // Let's try relation filter first.
+    and.push({
+      'category.slug': {
+        equals: categorySlug,
       },
-    ]
+    })
+  }
+
+  if (minPrice !== undefined) {
+    and.push({
+      price: {
+        greater_than_equal: minPrice,
+      },
+    })
+  }
+
+  if (maxPrice !== undefined) {
+    and.push({
+      price: {
+        less_than_equal: maxPrice,
+      },
+    })
+  }
+
+  if (and.length > 0) {
+    where.and = and
   }
 
   const products = await payload.find({
@@ -106,6 +162,10 @@ export default async function ProductsPage({ searchParams }: Props) {
               <p className="text-muted-foreground">
                 {products.totalDocs} produk ditemukan {query ? 'untuk pencarian Anda' : ''}
               </p>
+            </div>
+
+            <div className="flex gap-2 w-full md:w-auto">
+              <FilterSortSheet categories={categories} />
             </div>
           </div>
         </div>
@@ -223,8 +283,9 @@ export default async function ProductsPage({ searchParams }: Props) {
             </div>
             <h3 className="text-lg font-bold text-foreground">Produk tidak ditemukan</h3>
             <p className="text-muted-foreground max-w-sm mt-2 mb-6">
-              Maaf, kami tidak dapat menemukan produk yang sesuai dengan pencarian Anda via "{query}
-              ".
+              Maaf, kami tidak dapat menemukan produk yang sesuai dengan pencarian Anda via &quot;
+              {query}
+              &quot;.
             </p>
             <Button asChild variant="default">
               <Link href="/products">Lihat Semua Produk</Link>

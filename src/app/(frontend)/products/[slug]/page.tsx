@@ -19,6 +19,7 @@ import {
   ShoppingBag01Icon,
 } from '@hugeicons/core-free-icons'
 import { Icon } from '@/components/ui/icon'
+import { MagicImageViewer } from '@/components/magic-image-viewer'
 
 // Helper Rupiah
 const formatRupiah = (num: number) =>
@@ -107,20 +108,26 @@ export default async function ProductPage({ params }: Props) {
           {/* --- KOLOM KIRI: GALERI (Sticky on Desktop) --- */}
           <div className="lg:col-span-7 space-y-4 lg:sticky lg:top-24 h-fit">
             {/* Main Image */}
-            <div className="relative aspect-3/4 w-full overflow-hidden rounded-2xl bg-muted shadow-xs">
-              {mainImageUrl && (
-                <Image
-                  src={mainImageUrl}
-                  alt={product.name}
-                  fill
-                  className="object-cover"
-                  priority
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 60vw, 50vw"
-                />
-              )}
+            {/* Main Image with Magic Viewer */}
+            <div className="w-full">
+              <MagicImageViewer originalUrl={mainImageUrl} productName={product.name} />
 
-              {/* Floating Badges */}
-              <div className="absolute top-4 left-4 flex flex-col gap-2 z-10">
+              {/* Floating Badges (Outside Viewer if needed, or integrated?) 
+                  The user prompt asked for the viewer to handle variants. 
+                  But the original code had Category and PreOrder badges. 
+                  I should probably keep them or let the user decide. 
+                  However, the MagicImageViewer has its own container. 
+                  I'll place the badges absolutely positioned *over* the viewer wrapper in the page 
+                  OR inside the viewer. 
+                  
+                  Given the MagicImageViewer is a self-contained component for "viewing", 
+                  and the badges are product *metadata*, it might be better to overlay them 
+                  here in the parent or pass them in. 
+                  
+                  BUT, looking at the MagicImageViewer code I just wrote, it has relative positioning.
+                  If I wrap it here, I can overlay the original labels.
+              */}
+              <div className="absolute top-4 left-4 flex flex-col gap-2 z-10 pointer-events-none">
                 <Badge className="bg-white/90 backdrop-blur-md text-foreground border-0 shadow-sm uppercase tracking-wider text-xs px-3 py-1 font-bold">
                   {product.category?.title || 'Kebaya'}
                 </Badge>
